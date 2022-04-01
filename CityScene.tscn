@@ -1,6 +1,8 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=13 format=2]
 
 [ext_resource path="res://CityBackground.png" type="Texture" id=1]
+[ext_resource path="res://gradient_water.tres" type="Shader" id=2]
+[ext_resource path="res://gradient_horizon.tres" type="Shader" id=3]
 
 [sub_resource type="GDScript" id=2]
 script/source = "extends ParallaxLayer
@@ -10,14 +12,23 @@ var offset_x = 0.0
 var last_camera_x = 0.0
 
 func _ready():
-	last_camera_x = get_node(\"../../Camera2D\").get_camera_position().x
+	last_camera_x = get_node(\"../../../Camera2D\").get_camera_position().x
 
 func _process(delta):
 	motion_offset = Vector2(offset_x, 0)
-	var new_camera_x = get_node(\"../../Camera2D\").get_camera_position().x
+	var new_camera_x = get_node(\"../../../Camera2D\").get_camera_position().x
 	offset_x -= delta*speed + (new_camera_x - last_camera_x)*-2
 	last_camera_x = new_camera_x
 "
+
+[sub_resource type="ShaderMaterial" id=22]
+shader = ExtResource( 3 )
+
+[sub_resource type="ShaderMaterial" id=23]
+shader = ExtResource( 3 )
+
+[sub_resource type="ShaderMaterial" id=28]
+shader = ExtResource( 2 )
 
 [sub_resource type="TileSet" id=1]
 5/name = "CityBackground.png 5"
@@ -91,7 +102,22 @@ func _process(delta):
 9/shapes = [  ]
 9/z_index = 0
 
-[sub_resource type="Shader" id=7]
+[sub_resource type="Shader" id=29]
+code = "shader_type canvas_item;
+
+void fragment()
+{
+    vec4 col = texture(TEXTURE, UV);
+    if (col.a > 0.0) {
+        col += vec4(0.1, 0.02, 0.00, 0.0);
+    }
+    COLOR = col;
+}"
+
+[sub_resource type="ShaderMaterial" id=30]
+shader = SubResource( 29 )
+
+[sub_resource type="Shader" id=31]
 code = "shader_type canvas_item;
 
 void fragment()
@@ -101,92 +127,27 @@ void fragment()
         col += vec4(0.05, 0.01, 0.00, 0.0);
     }
     COLOR = col;
-}
-"
+}"
 
-[sub_resource type="ShaderMaterial" id=6]
-shader = SubResource( 7 )
+[sub_resource type="ShaderMaterial" id=32]
+shader = SubResource( 31 )
 
 [node name="Node2D" type="Node2D"]
 
-[node name="ParallaxBackground" type="ParallaxBackground" parent="."]
-layer = -1
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2( 240, 135 )
+current = true
+smoothing_speed = 8.0
+
+[node name="ViewportContainer" type="ViewportContainer" parent="."]
+margin_top = 133.0
+margin_right = 480.0
+margin_bottom = 238.0
+
+[node name="ParallaxBackground5" type="ParallaxBackground" parent="ViewportContainer"]
 scroll_ignore_camera_zoom = true
 
-[node name="ParallaxLayer" type="ParallaxLayer" parent="ParallaxBackground"]
-position = Vector2( 295, 103 )
-motion_mirroring = Vector2( 640, 0 )
-script = SubResource( 2 )
-__meta__ = {
-"_edit_lock_": true
-}
-speed = 100.0
-
-[node name="StaticBody2D" type="StaticBody2D" parent="ParallaxBackground/ParallaxLayer"]
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="TileMap" type="TileMap" parent="ParallaxBackground/ParallaxLayer/StaticBody2D"]
-position = Vector2( 216, 39 )
-tile_set = SubResource( 1 )
-cell_size = Vector2( 64, 4 )
-format = 1
-tile_data = PoolIntArray( 65525, 5, 0, 65535, 5, 0, 0, 0, 0, 1, 1, 0 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ParallaxBackground/ParallaxLayer/StaticBody2D"]
-visible = false
-position = Vector2( -183, 42 )
-polygon = PoolVector2Array( 124, -113, 17, -2, 9, 97, 321, 91, 407, -97 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="ParallaxBackground2" type="ParallaxBackground" parent="."]
-layer = -2
-scroll_ignore_camera_zoom = true
-
-[node name="ParallaxLayer2" type="ParallaxLayer" parent="ParallaxBackground2"]
-position = Vector2( 295, 103 )
-motion_mirroring = Vector2( 640, 0 )
-script = SubResource( 2 )
-__meta__ = {
-"_edit_lock_": true
-}
-speed = 50.0
-
-[node name="StaticBody2D" type="StaticBody2D" parent="ParallaxBackground2/ParallaxLayer2"]
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="TileMap" type="TileMap" parent="ParallaxBackground2/ParallaxLayer2/StaticBody2D"]
-material = SubResource( 6 )
-position = Vector2( 216, 39 )
-tile_set = SubResource( 1 )
-cell_size = Vector2( 64, 4 )
-format = 1
-tile_data = PoolIntArray( -11, 6, 0, -65527, 6, 0, 0, 0, 0, 1, 1, 0 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ParallaxBackground2/ParallaxLayer2/StaticBody2D"]
-visible = false
-position = Vector2( -183, 42 )
-polygon = PoolVector2Array( 124, -113, 17, -2, 9, 97, 321, 91, 407, -97 )
-__meta__ = {
-"_edit_lock_": true
-}
-
-[node name="ParallaxBackground3" type="ParallaxBackground" parent="."]
-layer = 0
-scroll_ignore_camera_zoom = true
-
-[node name="ParallaxLayer2" type="ParallaxLayer" parent="ParallaxBackground3"]
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="ViewportContainer/ParallaxBackground5"]
 position = Vector2( 295, 103 )
 motion_mirroring = Vector2( 640, 0 )
 script = SubResource( 2 )
@@ -195,22 +156,92 @@ __meta__ = {
 }
 speed = 150.0
 
-[node name="StaticBody2D" type="StaticBody2D" parent="ParallaxBackground3/ParallaxLayer2"]
+[node name="ColorRect" type="ColorRect" parent="ViewportContainer/ParallaxBackground5/ParallaxLayer2"]
+material = SubResource( 22 )
+margin_left = -488.0
+margin_top = -113.0
+margin_right = 152.0
+margin_bottom = 135.0
+rect_pivot_offset = Vector2( 373, -36 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="TileMap" type="TileMap" parent="ParallaxBackground3/ParallaxLayer2/StaticBody2D"]
+[node name="ColorRect2" type="ColorRect" parent="ViewportContainer/ParallaxBackground5/ParallaxLayer2"]
+material = SubResource( 23 )
+margin_left = 792.0
+margin_top = -113.0
+margin_right = 1432.0
+margin_bottom = 135.0
+rect_pivot_offset = Vector2( 373, -36 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ParallaxBackground4" type="ParallaxBackground" parent="ViewportContainer"]
+layer = 0
+scroll_ignore_camera_zoom = true
+
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="ViewportContainer/ParallaxBackground4"]
+position = Vector2( 295, 103 )
+motion_mirroring = Vector2( 640, 0 )
+script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+speed = 150.0
+
+[node name="ColorRect" type="ColorRect" parent="ViewportContainer/ParallaxBackground4/ParallaxLayer2"]
+material = SubResource( 28 )
+margin_left = -488.0
+margin_top = 136.0
+margin_right = 152.0
+margin_bottom = 176.0
+rect_pivot_offset = Vector2( 373, -36 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ColorRect2" type="ColorRect" parent="ViewportContainer/ParallaxBackground4/ParallaxLayer2"]
+material = SubResource( 28 )
+margin_left = 792.0
+margin_top = 136.0
+margin_right = 1432.0
+margin_bottom = 176.0
+rect_pivot_offset = Vector2( 373, -36 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ParallaxBackground3" type="ParallaxBackground" parent="ViewportContainer"]
+layer = 0
+scroll_ignore_camera_zoom = true
+
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="ViewportContainer/ParallaxBackground3"]
+position = Vector2( 295, 103 )
+motion_mirroring = Vector2( 640, 0 )
+script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+speed = 150.0
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ViewportContainer/ParallaxBackground3/ParallaxLayer2"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="TileMap" type="TileMap" parent="ViewportContainer/ParallaxBackground3/ParallaxLayer2/StaticBody2D"]
 position = Vector2( 216, 39 )
 tile_set = SubResource( 1 )
-cell_size = Vector2( 64, 4 )
+cell_size = Vector2( 64, 1 )
 format = 1
 tile_data = PoolIntArray( 0, 0, 0, 1, 1, 0, 131061, 7, 0, 65545, 7, 0 )
 __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ParallaxBackground3/ParallaxLayer2/StaticBody2D"]
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ViewportContainer/ParallaxBackground3/ParallaxLayer2/StaticBody2D"]
 visible = false
 position = Vector2( -183, 42 )
 polygon = PoolVector2Array( 124, -113, 17, -2, 9, 97, 321, 91, 407, -97 )
@@ -218,8 +249,86 @@ __meta__ = {
 "_edit_lock_": true
 }
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="ParallaxBackground2" type="ParallaxBackground" parent="ViewportContainer"]
+layer = -2
+scroll_ignore_camera_zoom = true
+
+[node name="ParallaxLayer2" type="ParallaxLayer" parent="ViewportContainer/ParallaxBackground2"]
+position = Vector2( 295, 103 )
+motion_mirroring = Vector2( 640, 0 )
+script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+speed = 50.0
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ViewportContainer/ParallaxBackground2/ParallaxLayer2"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="TileMap" type="TileMap" parent="ViewportContainer/ParallaxBackground2/ParallaxLayer2/StaticBody2D"]
+material = SubResource( 30 )
+position = Vector2( 216, 39 )
+tile_set = SubResource( 1 )
+cell_size = Vector2( 64, 1 )
+format = 1
+tile_data = PoolIntArray( 65525, 6, 0, 0, 0, 0, 1, 1, 0, 9, 6, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ViewportContainer/ParallaxBackground2/ParallaxLayer2/StaticBody2D"]
 visible = false
-position = Vector2( 240, 135 )
-current = true
-smoothing_speed = 8.0
+position = Vector2( -183, 42 )
+polygon = PoolVector2Array( 124, -113, 17, -2, 9, 97, 321, 91, 407, -97 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ParallaxBackground" type="ParallaxBackground" parent="ViewportContainer"]
+layer = -1
+scroll_ignore_camera_zoom = true
+
+[node name="ParallaxLayer" type="ParallaxLayer" parent="ViewportContainer/ParallaxBackground"]
+position = Vector2( 295, 103 )
+motion_mirroring = Vector2( 640, 0 )
+script = SubResource( 2 )
+__meta__ = {
+"_edit_lock_": true
+}
+speed = 100.0
+
+[node name="StaticBody2D" type="StaticBody2D" parent="ViewportContainer/ParallaxBackground/ParallaxLayer"]
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="TileMap" type="TileMap" parent="ViewportContainer/ParallaxBackground/ParallaxLayer/StaticBody2D"]
+material = SubResource( 32 )
+position = Vector2( 216, 39 )
+tile_set = SubResource( 1 )
+cell_size = Vector2( 64, 1 )
+format = 1
+tile_data = PoolIntArray( 65525, 5, 0, 65535, 5, 0, 0, 0, 0, 1, 1, 0, 19, 5, 0 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="ViewportContainer/ParallaxBackground/ParallaxLayer/StaticBody2D"]
+visible = false
+position = Vector2( -183, 42 )
+polygon = PoolVector2Array( 124, -113, 17, -2, 9, 97, 321, 91, 407, -97 )
+__meta__ = {
+"_edit_lock_": true
+}
+
+[node name="ParallaxBackground6" type="ParallaxBackground" parent="."]
+layer = 1
+scroll_ignore_camera_zoom = true
+
+[node name="ColorRect" type="ColorRect" parent="ParallaxBackground6"]
+visible = false
+margin_top = 239.0
+margin_right = 480.0
+margin_bottom = 279.0
